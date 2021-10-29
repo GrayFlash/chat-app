@@ -1,8 +1,15 @@
 const express = require('express');
+const cors = require('cors');
 const {Client} = require('pg');
 const parse = require('pg-connection-string').parse;
 const app = express()
 app.use(express.json())
+const corsOptions = {
+    origin:'*', 
+    credentials:true,
+    optionSuccessStatus:200,
+}
+app.use(cors(corsOptions))
 const dotenv = require('dotenv');
 const port = 5000;
 dotenv.config();
@@ -17,16 +24,21 @@ validtokens = {};
 checktokens = {};
 
 app.post('/register',(req,res) => {
-    let name = req.body.name;
-    let uid = req.body.uid;
-    let private = req.body.private;
-    let public = req.body.public;
-    db.query("INSERT INTO userdetails VALUES($1,$2,$3,$4)",[uid,name,private,public]).then(
-        (result,err) => {
-            if(err) res.status(500).send(err);
-        }
-    );
-    res.send("OK");
+    try{
+        let name = req.body.name;
+        let uid = req.body.uid;
+        let private = req.body.private;
+        let public = req.body.public;
+        db.query("INSERT INTO userdetails VALUES($1,$2,$3,$4)",[uid,name,private,public]).then(
+            (result,err) => {
+                if(err) res.status(500).send(err);
+            }
+        );
+        res.send("OK");
+    }
+    catch(err) {
+        res.status(500).send(err);
+    }
 });
 
 const generateToken = (uid,publickey) => {
