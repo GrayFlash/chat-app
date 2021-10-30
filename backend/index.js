@@ -131,7 +131,16 @@ app.get('/getpublickey',(req,res) => {
 });
 
 app.post('/chatsync',(req,res) => {
-    
+    let uid = req.body.uid;
+    let token = req.body.token;
+    if(checkValidUser(uid,token)){
+        db.query("SELECT * FROM messages WHERE sender=$1 OR reciever=$1",[uid]).then(
+            (result,err) => {
+                if(err) res.status(500).send(err);
+                else res.send(result.rows);
+            }
+        );
+    }else res.status(400).send("Login session expired");
 });
 
 app.get('/test',(req,res) => {

@@ -19,6 +19,7 @@ class MessagePage extends React.Component{
   constructor (props) {
     super(props);
     const { cookies } = props;
+    setInterval(this.syncmsg,5000);
   }
 
   state = {
@@ -39,7 +40,9 @@ class MessagePage extends React.Component{
 
   submit = async(data) => {
     const {cookies} = this.props;
+    data.senderid = cookies.get('userid');
     var passtoken = cookies.get('passtoken');
+    if(data.receiverid == '')data.receiverid=data.senderid;
     var res = await axios.get('http://localhost:5000/getpublickey?uid='+data.receiverid);
     var publicKey = Buffer.from(res.data,'base64');
     publicKey = JSON.parse(Buffer.from(publicKey).toString());
@@ -76,12 +79,13 @@ class MessagePage extends React.Component{
       modulusLength: 4096,
       publicExponent: new Uint8Array([1, 0, 1]),
       hash: "SHA-256"},publicKey,genAES);
-    msg = Buffer.from(encrypted_key).toString('base64') + " " + Buffer.from(msg).toString('base64')
+      msg = {data:[Buffer.from(encrypted_key).toString('base64'),Buffer.from(msg).toString('base64')]};
+    msg = JSON.stringify(msg);
     const file = {path:data.senderid+data.receiverid, content: msg};
     const filesAdded = await ipfs.add(file);
     data.cid =  filesAdded.cid._baseCache.get('z');
     console.log(data.cid);
-    var res = axios.post('http://localhost:5000/message',data={
+    var res = await axios.post('http://localhost:5000/message',data={
       uid:data.senderid,
       receiver:data.receiverid,
       cid:data.cid,
@@ -91,19 +95,64 @@ class MessagePage extends React.Component{
 };
 
   syncmsg = async () => {
-
+    const {cookies} = this.props;
+    var senderid = cookies.get('userid');
+    var passtoken = cookies.get('passtoken');
+    var privateKey = cookies.get('privatekey');
+    privateKey = await crypto.subtle.importKey("jwk",privateKey,{
+      name: "RSA-OAEP",
+      modulusLength: 4096,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: "SHA-256"
+    },
+    true,
+    ["decrypt"]);
+    var res = await axios.post('http://localhost:5000/chatsync',{
+      uid:senderid,
+      token:passtoken
+    });
+    var msgs = [];
+    for(var i=0;i<res.data.length;i++){
+      var message = await axios.get('https://gateway.ipfs.io/ipfs/'+res.data[i].content_id); 
+      var key = await crypto.subtle.decrypt({
+        name:"RSA-OAEP",
+        modulusLength: 4096,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-256"},privateKey,Buffer.from(message.data.data[0],'base64'));
+      key = JSON.parse(Buffer.from(key).toString());
+      var salt = Buffer.from([0,0,0,0]);
+      var iv = new Int8Array(16);
+      for(var ij=0;ij<16;ij++)iv[ij]=ij%8;
+      var enc = new TextEncoder();
+      key = await crypto.subtle.importKey(
+        "jwk",key,{
+          name: "AES-CBC",
+          iv: iv,
+        },true,["encrypt","decrypt"]
+      );
+      var msg = await crypto.subtle.decrypt({
+        name: "AES-CBC",
+        iv: iv,
+      },key,Buffer.from(message.data.data[1],'base64'));
+      msg = Buffer.from(msg).toString();
+      msgs[i] = {
+        message:msg,
+        sender:res.data[i].sender,
+        receiver:res.data[i].reciever
+      };
+    }
+    console.log(msgs);
   };
 
   render(){
     const {data, currData} = this.state;
-
     return(
       <div id="chat1234">
         <div style={{ position: "relative", height: "500px" }}>
           <MainContainer>
             <ConversationList>
               {this.state.users.map((usr)=> <Conversation lastSenderName="You" name="Lilly" info="Yes, i can do it for you">
-                  <Conversation.Operations onClick={() => alert('Operations clicked')} />
+                  <Conversation.Operations onClick={() => this.setState({receiverid:usr})} />
                   </Conversation>
               )}
             </ConversationList>
