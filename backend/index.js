@@ -46,7 +46,7 @@ const generateToken = async (uid,publickey) => {
     publickey = JSON.parse(publickey.toString());
     arr = new Int8Array(32);
     crypto.getRandomValues(arr);
-    checktokens[uid] = arr;
+    checktokens[uid] = Buffer.from(arr).toString('base64');
     publickey = await crypto.subtle.importKey("jwk",publickey,{
         name: "RSA-OAEP",
         modulusLength: 4096,
@@ -106,7 +106,7 @@ app.post('/message',(req,res) => {
 });
 
 app.post('/chatsync',(req,res) => {
-    
+
 });
 
 app.get('/test',(req,res) => {
