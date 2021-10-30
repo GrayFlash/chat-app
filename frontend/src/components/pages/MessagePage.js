@@ -1,10 +1,7 @@
 import React from 'react';
 import ChatForm from '../forms/ChatForm';
-// const IPFS = require('ipfs')
-
-const ipfsClient = require('ipfs-http-client');
-
-const ipfs = ipfsClient.create('https://ipfs.infura.io:5001/api/v0');
+import styles from '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
+import { MainContainer, ChatContainer, MessageList, Message, MessageInput, ConversationList, Conversation, ConversationHeader } from '@chatscope/chat-ui-kit-react';
 
 // const IPFS = require('ipfs')
 
@@ -42,8 +39,24 @@ class MessagePage extends React.Component{
 
     return(
       <div>
-        <h1>Chat Browser</h1>
-        <ChatForm submit={this.submit}/>
+        <div style={{ position: "relative", height: "500px" }}>
+          <MainContainer>
+            <ConversationList>
+              {this.state.users.map((usr)=> <Conversation lastSenderName="You" name="Lilly" info="Yes, i can do it for you">
+          <Conversation.Operations onClick={() => alert('Operations clicked')} />
+        </Conversation>)}
+            </ConversationList>
+            <ChatContainer >
+              <ConversationHeader>
+              <ConversationHeader.Content userName="Jane Doe" />
+              </ConversationHeader>
+              <MessageList>
+                {data.map((msg) => <Message model={{message: msg, sentTime: "just now",sender: "Joe"}}/>)}
+              </MessageList>
+              <MessageInput placeholder="Type message here" />
+            </ChatContainer>
+          </MainContainer>
+        </div>
       </div>
     );
   }
