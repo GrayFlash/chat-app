@@ -56,6 +56,7 @@ submit = async (data) => {
     privateKey
   );
   privateKey = JSON.parse(Buffer.from(privateKey).toString());
+  let prKey = privateKey;
   privateKey = await crypto.subtle.importKey("jwk",privateKey,{
     name: "RSA-OAEP",
     modulusLength: 4096,
@@ -66,6 +67,7 @@ submit = async (data) => {
   ["decrypt"]);
   var publicKey = Buffer.from(serverdata[0].publickey,'base64');
   publicKey = JSON.parse(Buffer.from(publicKey).toString());
+  let puKey = publicKey;
   publicKey = await crypto.subtle.importKey("jwk",publicKey,{
     name: "RSA-OAEP",
     modulusLength: 4096,
@@ -82,16 +84,17 @@ submit = async (data) => {
       hash: "SHA-256"
     },privateKey,Buffer.from(serverdata[1],'base64')
   );
+  decrypted_token = Buffer.from(decrypted_token).toString('base64');
   let res = await axios.post('http://localhost:5000/loginRes',data={
     "uid":data.userid,
-    "token":Buffer.from(decrypted_token).toString('base64')
+    "token":decrypted_token
   });
   if(res.statusText == "OK"){
   const {cookies} = this.props;
-  cookies.set('passtoken',decrypted_token);
-  cookies.set('privatekey',privateKey);
-  cookies.set('publicKey',publicKey);
-  console.log('Verified');
+  cookies.set('passtoken',decrypted_token,{path:'/'});
+  cookies.set('privatekey',prKey,{path:'/'});
+  cookies.set('publicKey',puKey,{path:'/'});
+  cookies.set('userid',data.uid,{path:'/'});
   this.render = () => {return (<Redirect to='/message'/>);};
   this.forceUpdate();
   }

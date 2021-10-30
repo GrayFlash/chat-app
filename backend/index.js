@@ -102,11 +102,36 @@ const checkValidUser = (uid,token) => {
 };
 
 app.post('/message',(req,res) => {
+    let uid = req.body.uid;
+    let token = req.body.token;
+    let receiverid = req.body.receiver;
+    let cid = req.body.cid;
+    if(checkValidUser(uid,token)){
+    db.query("INSERT INTO messages VALUES($1,$2,$3)",[uid,receiverid,cid]).then(
+        (result,err) => {
+            if(err) res.status(500).send(err);
+            else res.send("OK");
+        }
+    );
+}else res.status(400).send("Login session expired");
+});
 
+app.get('/getpublickey',(req,res) => {
+    let uid = req.query.uid;
+    db.query("SELECT publickey FROM userdetails WHERE username=$1",[uid]).then(
+        (result,err) => {
+            if(err) res.status(500).send(err);
+            else if(result.rows.length==0) res.status(500).send("No such User");
+            else {
+                publickey = Buffer.from(result.rows[0].publickey).toString('Base64');
+                res.send(publickey);
+            }
+        }
+    );
 });
 
 app.post('/chatsync',(req,res) => {
-
+    
 });
 
 app.get('/test',(req,res) => {
