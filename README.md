@@ -5,7 +5,7 @@ A IPFS based chat application, meant to be e2e (end-to-end) encrypted while also
 ## Devs - (Team Pseudo-Nerds)
 
 - [Mustafa Officewala](https://github.com/Mustafa2856)
-- [Gaurav Kumar](https://github.com/GrayFlas)
+- [Gaurav Kumar](https://github.com/GrayFlash)
 
 ## Problem Statement
 
