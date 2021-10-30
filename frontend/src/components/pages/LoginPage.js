@@ -7,6 +7,7 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 
 
+
 class LoginPage extends React.Component{
 
   static propTypes = {
