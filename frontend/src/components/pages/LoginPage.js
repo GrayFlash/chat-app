@@ -4,12 +4,12 @@ import LoginForm from "../forms/LoginForm";
 import axios from 'axios';
 import {Button } from 'semantic-ui-react';
 
+
 class LoginPage extends React.Component{
 
 //This gets the data and sends it as a post request
 submit = data => {
-  
-};
+  };
 
 render(){
   return(
