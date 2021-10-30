@@ -143,6 +143,18 @@ app.post('/chatsync',(req,res) => {
     }else res.status(400).send("Login session expired");
 });
 
+app.get('/userlist',(req,res) => {
+    db.query("SELECT username FROM userdetails").then(
+        (result,err) => {
+            if(err) res.status(500).send(err);
+            else if(result.rows.length==0) res.status(500).send("No such User");
+            else {
+                res.send(result.rows);
+            }
+        }
+    );
+});
+
 app.get('/test',(req,res) => {
     generateToken();
     res.send(":D");
