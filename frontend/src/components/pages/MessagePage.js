@@ -6,6 +6,11 @@ const ipfsClient = require('ipfs-http-client');
 
 const ipfs = ipfsClient.create('https://ipfs.infura.io:5001/api/v0');
 
+// const IPFS = require('ipfs')
+
+const ipfsClient = require('ipfs-http-client');
+
+const ipfs = ipfsClient.create('https://ipfs.infura.io:5001/api/v0');
 class MessagePage extends React.Component{
 
   state = {
@@ -39,7 +44,6 @@ class MessagePage extends React.Component{
       <div>
         <h1>Chat Browser</h1>
         <ChatForm submit={this.submit}/>
-
       </div>
     );
   }

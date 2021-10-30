@@ -1,11 +1,10 @@
 import React from 'react';
-import {Link} from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
 import LoginForm from "../forms/LoginForm";
 import axios from 'axios';
 import {Button } from 'semantic-ui-react';
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
-
 
 
 class LoginPage extends React.Component{
@@ -92,6 +91,9 @@ submit = async (data) => {
   cookies.set('passtoken',decrypted_token);
   cookies.set('privatekey',privateKey);
   cookies.set('publicKey',publicKey);
+  console.log('Verified');
+  this.render = () => {return (<Redirect to='/message'/>);};
+  this.forceUpdate();
   }
 };
 

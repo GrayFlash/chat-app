@@ -7,6 +7,7 @@
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "axios": "^0.24.0",
+    "chat-ui-react": "^0.3.0",
     "crypto": "^1.0.1",
     "ipfs": "^0.59.1",
     "ipfs-pubsub-room": "^2.0.1",
