@@ -20,6 +20,7 @@ class MessagePage extends React.Component{
     super(props);
     const { cookies } = props;
     setInterval(this.syncmsg,5000);
+    this.getUserlist();
   }
 
   state = {
@@ -32,8 +33,7 @@ class MessagePage extends React.Component{
       receiverid: '',
       cid: '',
       message: '',
-    },
-
+    }
   };
 
   onChange = e => this.setState({currData: {...this.state.currData, message: e.target.value}});
@@ -144,14 +144,23 @@ class MessagePage extends React.Component{
     console.log(msgs);
   };
 
+  getUserlist = async () => {
+    let userlist = await axios.get('http://localhost:5000/userlist');
+    this.setState(this.state = {users:userlist.data});
+    //console.log(userlist);
+    this.forceUpdate();
+  };
+
   render(){
     const {data, currData} = this.state;
+    const {cookies} = this.props;
+    var uid = cookies.get('userid');
     return(
       <div id="chat1234">
         <div style={{ position: "relative", height: "500px" }}>
           <MainContainer>
             <ConversationList>
-              {this.state.users.map((usr)=> <Conversation lastSenderName="You" name="Lilly" info="Yes, i can do it for you">
+              {this.state.users.map((usr)=> <Conversation name={usr.username} >
                   <Conversation.Operations onClick={() => this.setState({receiverid:usr})} />
                   </Conversation>
               )}
@@ -159,7 +168,7 @@ class MessagePage extends React.Component{
 
             <ChatContainer >
               <ConversationHeader>
-              <ConversationHeader.Content userName="Jane Doe" />
+              <ConversationHeader.Content userName={uid} />
               </ConversationHeader>
               <MessageList>
                 {data.map((msg) => <Message model={{message: msg, sentTime: "just now",sender: "Joe"}}/>)}
