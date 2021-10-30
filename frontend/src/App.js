@@ -4,7 +4,7 @@ import HomePage from "./components/pages/HomePage";
 import LandingPage from "./components/pages/LandingPage";
 import LoginPage from "./components/pages/LoginPage";
 import RegistrationPage from "./components/pages/RegistrationPage";
-
+import MessagePage from './components/pages/MessagePage';
 
 
 const App = () => (
@@ -14,6 +14,7 @@ const App = () => (
   <Route path="/login" exact component = {LoginPage}/>
   <Route path="/registration" exact component = {RegistrationPage}/>
   <Route path="/landing" exact component = {LandingPage}/>
+  <Route path="/message" exact component = {MessagePage}/>
 
 </section>
 );
