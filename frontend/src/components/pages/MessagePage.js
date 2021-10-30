@@ -22,17 +22,20 @@ class MessagePage extends React.Component{
   }
 
   state = {
-    data: {
+    data: [],
+    users : [],
+    loading: false,
+    errors: {},
+    currData : {
       senderid: '',
       receiverid: '',
-      message: '',
       cid: '',
+      message: '',
     },
-    loading: false,
-    errors: {}
+
   };
 
-  onChange = e => this.setState({data: {...this.state.data, [e.target.name]: e.target.value}});
+  onChange = e => this.setState({currData: {...this.state.currData, message: e.target.value}});
 
   submit = async(data) => {
     const {cookies} = this.props;
@@ -86,20 +89,36 @@ class MessagePage extends React.Component{
     });
     console.log(res);
 };
-    
 
   syncmsg = async () => {
 
   };
 
   render(){
-    const {data} = this.state;
+    const {data, currData} = this.state;
 
     return(
       <div id="chat1234">
         <div style={{ position: "relative", height: "500px" }}>
-          
-          <ChatForm submit={this.submit}/>
+          <MainContainer>
+            <ConversationList>
+              {this.state.users.map((usr)=> <Conversation lastSenderName="You" name="Lilly" info="Yes, i can do it for you">
+                  <Conversation.Operations onClick={() => alert('Operations clicked')} />
+                  </Conversation>
+              )}
+            </ConversationList>
+
+            <ChatContainer >
+              <ConversationHeader>
+              <ConversationHeader.Content userName="Jane Doe" />
+              </ConversationHeader>
+              <MessageList>
+                {data.map((msg) => <Message model={{message: msg, sentTime: "just now",sender: "Joe"}}/>)}
+              </MessageList>
+              <ChatForm as="MessageInput" submit={this.submit}/>
+            </ChatContainer>
+
+          </MainContainer>
         </div>
       </div>
     );
