@@ -1,5 +1,10 @@
 import React from 'react';
 import ChatForm from '../forms/ChatForm';
+// const IPFS = require('ipfs')
+
+const ipfsClient = require('ipfs-http-client');
+
+const ipfs = ipfsClient.create('https://ipfs.infura.io:5001/api/v0');
 
 class MessagePage extends React.Component{
 
@@ -17,6 +22,11 @@ class MessagePage extends React.Component{
 
   submit = async(data) => {
     console.log("data - message",data.message)
+
+    const file = {path:data.senderid+data.receiverid, content: Buffer.from(data.message)};
+    const filesAdded = await ipfs.add(file);
+    console.log(filesAdded);
+
   };
 
   render(){
