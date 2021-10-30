@@ -13,6 +13,7 @@ class MessagePage extends React.Component{
       senderid: '',
       receiverid: '',
       message: '',
+      cid: '',
     },
     loading: false,
     errors: {}
@@ -25,7 +26,9 @@ class MessagePage extends React.Component{
 
     const file = {path:data.senderid+data.receiverid, content: Buffer.from(data.message)};
     const filesAdded = await ipfs.add(file);
-    console.log(filesAdded);
+    data.cid =  filesAdded.cid._baseCache.get('z')
+    
+    console.log(data.cid, data.senderid, data.receiverid, data.message);
 
   };
 
@@ -41,8 +44,5 @@ class MessagePage extends React.Component{
     );
   }
 }
-
-
-
 
 export default MessagePage;
