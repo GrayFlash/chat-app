@@ -19,7 +19,6 @@ class MessagePage extends React.Component{
   constructor (props) {
     super(props);
     const { cookies } = props;
-    setInterval(this.syncmsg,5000);
     this.getUserlist();
   }
 
@@ -28,6 +27,7 @@ class MessagePage extends React.Component{
     users : [],
     loading: false,
     errors: {},
+    uid: '',
     currData : {
       senderid: '',
       receiverid: '',
@@ -37,8 +37,9 @@ class MessagePage extends React.Component{
   };
 
   onChange = e => this.setState({currData: {...this.state.currData, message: e.target.value}});
-
+  
   submit = async(data) => {
+    data = {message:data,senderid:'',receiverid:''};
     const {cookies} = this.props;
     data.senderid = cookies.get('userid');
     var passtoken = cookies.get('passtoken');
@@ -91,7 +92,7 @@ class MessagePage extends React.Component{
       cid:data.cid,
       token:passtoken
     });
-    console.log(res);
+    //console.log(res);
 };
 
   syncmsg = async () => {
@@ -141,39 +142,47 @@ class MessagePage extends React.Component{
         receiver:res.data[i].reciever
       };
     }
-    console.log(msgs);
+    //console.log(msgs);
+    var msgUI = []
+    for(var i=0;i<msgs.length;i++){
+      if(msgs[i].sender == senderid)msgUI[i] = {message:msgs[i].message,direction:'outgoing'};
+      else msgUI[i] = {message:msgs[i].message,direction:'incoming'};
+    }
+    this.setState({data:msgUI});
   };
 
   getUserlist = async () => {
     let userlist = await axios.get('http://localhost:5000/userlist');
-    this.setState(this.state = {users:userlist.data});
+    this.setState({users:userlist.data});
     //console.log(userlist);
+    const {cookies} = this.props;
+    this.setState({uid:cookies.get('userid')});
     this.forceUpdate();
   };
 
   render(){
     const {data, currData} = this.state;
     const {cookies} = this.props;
-    var uid = cookies.get('userid');
+    this.state.uid = cookies.get('userid');
+    setInterval(this.syncmsg,2000);
     return(
       <div id="chat1234">
         <div style={{ position: "relative", height: "500px" }}>
           <MainContainer>
-            <ConversationList>
-              {this.state.users.map((usr)=> <Conversation name={usr.username} >
-                  <Conversation.Operations onClick={() => this.setState({receiverid:usr})} />
+            <ConversationList scrollable>
+              {this.state.users.map((usr,i)=> <Conversation key={i} name={usr.username}>
                   </Conversation>
               )}
             </ConversationList>
 
             <ChatContainer >
               <ConversationHeader>
-              <ConversationHeader.Content userName={uid} />
+              <ConversationHeader.Content userName={this.state.uid} />
               </ConversationHeader>
-              <MessageList>
-                {data.map((msg) => <Message model={{message: msg, sentTime: "just now",sender: "Joe"}}/>)}
+              <MessageList scrollBehavior="smooth" autoscroll="bottom">
+                {data.map((msg,i) => <Message key={i} model={msg}/>)}
               </MessageList>
-              <ChatForm as="MessageInput" submit={this.submit}/>
+              <MessageInput placeholder="Type message here" onSend={this.submit} />
             </ChatContainer>
 
           </MainContainer>
