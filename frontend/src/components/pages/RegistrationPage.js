@@ -1,5 +1,5 @@
 import React from 'react';
-import {Link} from "react-router-dom";
+import {Link,Redirect} from "react-router-dom";
 import RegistrationForm from "../forms/RegistrationForm";
 import axios from 'axios';
 
@@ -59,6 +59,8 @@ submit = async (data) => {
     "public":publicKey
   });
   console.log(res);
+  this.render = () => {return (<Redirect to='/login'/>);};
+  this.forceUpdate();
 };
 
 render(){

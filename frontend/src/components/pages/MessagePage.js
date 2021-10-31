@@ -5,6 +5,7 @@ import { MainContainer, ChatContainer, MessageList, Message, MessageInput, Conve
 import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import axios from 'axios';
+import Button from '@chatscope/chat-ui-kit-react/dist/cjs/Buttons/Button';
 // const IPFS = require('ipfs')
 
 const ipfsClient = require('ipfs-http-client');
@@ -25,7 +26,7 @@ class MessagePage extends React.Component{
   state = {
     data: [],
     users : [],
-    loading: false,
+    loading: true,
     errors: {},
     uid: '',
     currData : {
@@ -43,6 +44,7 @@ class MessagePage extends React.Component{
     const {cookies} = this.props;
     data.senderid = cookies.get('userid');
     var passtoken = cookies.get('passtoken');
+    //data.receiverid = this.state.uid;
     if(data.receiverid == '')data.receiverid=data.senderid;
     var res = await axios.get('http://localhost:5000/getpublickey?uid='+data.receiverid);
     var publicKey = Buffer.from(res.data,'base64');
@@ -157,24 +159,34 @@ class MessagePage extends React.Component{
     //console.log(userlist);
     const {cookies} = this.props;
     this.setState({uid:cookies.get('userid')});
+    if(this.state.loading==true){
+      setInterval(this.syncmsg,2000);
+      this.setState({loading:false});
+    }
     this.forceUpdate();
   };
 
+  setuid(usr){
+    this.state.uid = usr.username;
+    this.forceUpdate();
+  }
+
   render(){
     const {data, currData} = this.state;
-    const {cookies} = this.props;
-    this.state.uid = cookies.get('userid');
-    setInterval(this.syncmsg,2000);
+    //const {cookies} = this.props;
+    //this.state.uid = cookies.get('userid');
     return(
       <div id="chat1234">
         <div style={{ position: "relative", height: "500px" }}>
-          <MainContainer>
-            <ConversationList scrollable>
-              {this.state.users.map((usr,i)=> <Conversation key={i} name={usr.username}>
-                  </Conversation>
-              )}
-            </ConversationList>
-
+          
+            <div width="50%" style={{"background-color":"white",color:"black"}} height="500px">
+              
+              {this.state.users.map((usr,i)=> <div onClick={() => this.setuid(usr)}>
+                    {usr.username}
+                  </div>
+              )}</div>
+            
+            <div width="50%" height="500px">
             <ChatContainer >
               <ConversationHeader>
               <ConversationHeader.Content userName={this.state.uid} />
@@ -184,8 +196,8 @@ class MessagePage extends React.Component{
               </MessageList>
               <MessageInput placeholder="Type message here" onSend={this.submit} />
             </ChatContainer>
-
-          </MainContainer>
+            </div>
+          
         </div>
       </div>
     );
