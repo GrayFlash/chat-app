@@ -134,7 +134,7 @@ app.post('/chatsync',(req,res) => {
     let uid = req.body.uid;
     let token = req.body.token;
     if(checkValidUser(uid,token)){
-        db.query("SELECT * FROM messages WHERE sender=$1 OR reciever=$1",[uid]).then(
+        db.query("SELECT * FROM messages WHERE reciever=$1",[uid]).then(
             (result,err) => {
                 if(err) res.status(500).send(err);
                 else res.send(result.rows);

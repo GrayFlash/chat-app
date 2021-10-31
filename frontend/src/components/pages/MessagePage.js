@@ -21,11 +21,15 @@ class MessagePage extends React.Component{
     super(props);
     const { cookies } = props;
     this.getUserlist();
+    
+      setInterval(this.syncmsg,2000);
+     
   }
 
   state = {
     data: [],
     users : [],
+    sent: [],
     loading: true,
     errors: {},
     uid: '',
@@ -40,12 +44,14 @@ class MessagePage extends React.Component{
   onChange = e => this.setState({currData: {...this.state.currData, message: e.target.value}});
   
   submit = async(data) => {
+   this.state.sent.push({message:data,direction:'outgoing'});
+    //this.state.sent=sentm;
     data = {message:data,senderid:'',receiverid:''};
     const {cookies} = this.props;
     data.senderid = cookies.get('userid');
     var passtoken = cookies.get('passtoken');
-    //data.receiverid = this.state.uid;
-    if(data.receiverid == '')data.receiverid=data.senderid;
+    data.receiverid = this.state.uid;
+    //if(data.receiverid == '')data.receiverid=data.senderid;
     var res = await axios.get('http://localhost:5000/getpublickey?uid='+data.receiverid);
     var publicKey = Buffer.from(res.data,'base64');
     publicKey = JSON.parse(Buffer.from(publicKey).toString());
@@ -93,7 +99,7 @@ class MessagePage extends React.Component{
       receiver:data.receiverid,
       cid:data.cid,
       token:passtoken
-    });
+    });console.log("??");
     //console.log(res);
 };
 
@@ -144,30 +150,36 @@ class MessagePage extends React.Component{
         receiver:res.data[i].reciever
       };
     }
-    //console.log(msgs);
-    var msgUI = []
+    var msgUI = [];
+    for(var ii=0;ii<this.state.sent.length;i++){
+      msgUI[i] = {messgae:this.state.sent[ii].message,direction:'outgoing'};
+      //console.log(this.state.sent[ii]);
+    }
     for(var i=0;i<msgs.length;i++){
-      if(msgs[i].sender == senderid)msgUI[i] = {message:msgs[i].message,direction:'outgoing'};
-      else msgUI[i] = {message:msgs[i].message,direction:'incoming'};
+
+      if(msgs[i].sender == senderid){}
+      else msgUI[i+msgUI.length] = {message:msgs[i].message,direction:'incoming'};
     }
     this.setState({data:msgUI});
   };
 
   getUserlist = async () => {
     let userlist = await axios.get('http://localhost:5000/userlist');
-    this.setState({users:userlist.data});
-    //console.log(userlist);
+    let list = [];
     const {cookies} = this.props;
-    this.setState({uid:cookies.get('userid')});
-    if(this.state.loading==true){
-      setInterval(this.syncmsg,2000);
-      this.setState({loading:false});
+    var uid = cookies.get('userid');
+    
+    for(var i=0;i<userlist.data.length;i++){
+      if(userlist.data[i].username!=uid)list.push(userlist.data[i].username);
     }
+    this.setState({users:list});
+    this.setState({uid:list[0]});
+    //console.log(list,uid);
     this.forceUpdate();
   };
 
   setuid(usr){
-    this.state.uid = usr.username;
+    this.state.uid = usr;
     this.forceUpdate();
   }
 
@@ -179,10 +191,10 @@ class MessagePage extends React.Component{
       <div id="chat1234">
         <div style={{ position: "relative", height: "500px" }}>
           
-            <div width="50%" style={{"background-color":"white",color:"black"}} height="500px">
+            <div width="50%" style={{backgroundColor:"white",color:"black"}} height="500px">
               
               {this.state.users.map((usr,i)=> <div onClick={() => this.setuid(usr)}>
-                    {usr.username}
+                    {usr}
                   </div>
               )}</div>
             

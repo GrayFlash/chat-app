@@ -15,5 +15,6 @@ CREATE TABLE messages(
     sender varchar(255),
     reciever varchar(255),
     content_id TEXT,
-    FOREIGN KEY (sender,reciever) REFERENCES userdetails(userName,userName) ON DELETE CASCADE
+    FOREIGN KEY (sender) REFERENCES userdetails(userName) ON DELETE CASCADE,
+    FOREIGN KEY (reciever) REFERENCES userdetails(userName) ON DELETE CASCADE
 );
