@@ -44,7 +44,9 @@ class MessagePage extends React.Component{
   onChange = e => this.setState({currData: {...this.state.currData, message: e.target.value}});
   
   submit = async(data) => {
-   this.state.sent.push({message:data,direction:'outgoing'});
+    var dict = {message:data,direction:'outgoing',id:0};
+    if(this.state.data.length>0)dict.id = this.state.data[this.state.data.length-1].id+1;
+   this.state.sent.push(dict);
     //this.state.sent=sentm;
     data = {message:data,senderid:'',receiverid:''};
     const {cookies} = this.props;
@@ -99,7 +101,7 @@ class MessagePage extends React.Component{
       receiver:data.receiverid,
       cid:data.cid,
       token:passtoken
-    });console.log("??");
+    });
     //console.log(res);
 };
 
@@ -147,20 +149,23 @@ class MessagePage extends React.Component{
       msgs[i] = {
         message:msg,
         sender:res.data[i].sender,
-        receiver:res.data[i].reciever
+        receiver:res.data[i].reciever,
+        id:res.data[i].id
       };
     }
     var msgUI = [];
-    for(var ii=0;ii<this.state.sent.length;i++){
-      msgUI[i] = {messgae:this.state.sent[ii].message,direction:'outgoing'};
-      //console.log(this.state.sent[ii]);
+    for(var ii=0;ii<this.state.sent.length;ii++){
+      msgUI[ii] = {message:this.state.sent[ii].message,direction:'outgoing',id:this.state.sent[ii].id};
     }
+    var len = msgUI.length
     for(var i=0;i<msgs.length;i++){
 
-      if(msgs[i].sender == senderid){}
-      else msgUI[i+msgUI.length] = {message:msgs[i].message,direction:'incoming'};
+      msgUI[i+len] = {message:msgs[i].message,direction:'incoming',id:msgs[i].id};
+      
     }
+    msgUI = msgUI.sort((a,b) => a.id-b.id);
     this.setState({data:msgUI});
+
   };
 
   getUserlist = async () => {

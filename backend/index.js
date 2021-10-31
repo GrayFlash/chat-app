@@ -107,7 +107,7 @@ app.post('/message',(req,res) => {
     let receiverid = req.body.receiver;
     let cid = req.body.cid;
     if(checkValidUser(uid,token)){
-    db.query("INSERT INTO messages VALUES($1,$2,$3)",[uid,receiverid,cid]).then(
+    db.query("INSERT INTO messages(sender,reciever,content_id) VALUES($1,$2,$3)",[uid,receiverid,cid]).then(
         (result,err) => {
             if(err) res.status(500).send(err);
             else res.send("OK");

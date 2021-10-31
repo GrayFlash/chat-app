@@ -12,6 +12,7 @@ CREATE TABLE userdetails(
 );
 
 CREATE TABLE messages(
+    id SERIAL PRIMARY KEY,
     sender varchar(255),
     reciever varchar(255),
     content_id TEXT,
